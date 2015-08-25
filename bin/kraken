@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+
+var Q = require('q');
+var fs = require('fs');
+var path = require('path');
+var async = require('async');
+var kraken = require('../kraken');
+
+function log (filename, before, after) {
+  var percent = ((after - before) / before * 100).toFixed(2) + '%';
+
+  console.error(
+    filename, '-',
+    'before:', before,
+    'bytes, after:', after,
+    'bytes, changes:', percent
+  );
+}
+
+function main (args) {
+  var total = { before: 0, after: 0 };
+  var cookie;
+  var target = 'kraked';
+  var concurrency = 10;
+
+  try {
+    if (!fs.statSync(target).isDirectory()) {
+      throw new Error('\'' + target + '\' is not a directory');
+    }
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      try {
+        fs.mkdirSync(target);
+      } catch (err) {
+        return console.error(err.toString());
+      }
+    } else {
+      return console.error(err.toString());
+    }
+  }
+
+  var queue = async.queue(function (task, callback) {
+    kraken.checkIfImage(task.input).then(function (isImage) {
+      if (!isImage) {
+        throw task.input + ' - is not an image, ignored';
+      }
+
+      if (!cookie) {
+        cookie = kraken.getCookies();
+      }
+
+      return cookie.then(function (cookie) {
+        console.error(task.input, '- uploading');
+        return kraken.upload(cookie, task.input);
+      }).then(function (data) {
+        total.before += data.originalSize;
+        total.after += data.optimizedSize;
+        log(task.input, data.originalSize, data.optimizedSize);
+        return kraken.download(data.url, task.output);
+      }).then(function (ret) {
+        console.error(task.input, '- downloaded to', ret.dest);
+      });
+    }).then(callback, callback);
+  }, concurrency);
+
+  queue.drain = function () {
+    if (total.after > 0) {
+      log('total', total.before, total.after);
+    }
+  };
+
+  args.forEach(function (arg) {
+    queue.push({
+      input: arg,
+      output: path.join(target, path.basename(arg))
+    }, function (err) {
+      if (err) {
+        console.error(err.toString());
+      }
+    });
+  });
+}
+
+main(process.argv.slice(2));

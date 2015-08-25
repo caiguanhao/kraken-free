@@ -1,0 +1,43 @@
+{
+  "name": "kraken-free",
+  "version": "1.0.0",
+  "description": "Use kraken.io Free Online Image Optimizer to optimize your JPEG and PNG images.",
+  "main": "kraken.js",
+  "bin": {
+    "kraken": "bin/kraken"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiguanhao/kraken-free"
+  },
+  "keywords": [
+    "kraken",
+    "free",
+    "image",
+    "crush",
+    "jpeg",
+    "jpg",
+    "png",
+    "optimize"
+  ],
+  "author": "Cai Guanhao <caiguanhao@gmail.com> (Choi Goon-ho)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/caiguanhao/kraken-free/issues"
+  },
+  "homepage": "https://github.com/caiguanhao/kraken-free",
+  "devDependencies": {},
+  "dependencies": {
+    "async": "^1.4.2",
+    "form-data": "^1.0.0-rc3",
+    "image-type": "^2.0.2",
+    "q": "^1.4.1",
+    "read-chunk": "^1.0.1"
+  },
+  "files": [
+    "bin",
+    "kraken.js",
+    "README.md",
+    "LICENSE"
+  ]
+}
