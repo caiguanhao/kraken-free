@@ -33,7 +33,7 @@ function getCookies () {
   var req = https.request({
     host: 'kraken.io',
     port: 443,
-    path: '/auth',
+    path: '/web-interface',
     method: 'GET'
   }, function (res) {
     deferred.resolve(parseCookies(res.headers['set-cookie']));
